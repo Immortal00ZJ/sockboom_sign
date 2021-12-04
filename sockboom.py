@@ -10,6 +10,11 @@ from DecryptLogin.platforms.music163 import Cracker
 # 禁用安全请求警告
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
+import sys
+curPath = os.path.abspath(os.path.dirname(__file__))
+rootPath = os.path.split(curPath)[0]
+sys.path.append(rootPath)
+
 '''网易云音乐自动签到'''
 class NeteaseSignin():
     def __init__(self, username, password, **kwargs):

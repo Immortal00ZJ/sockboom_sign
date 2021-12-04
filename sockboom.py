@@ -63,10 +63,10 @@ def user_centre(cookie):  # 用户中心
     # 获取个人用户信息
     pims = soup.select('.dash-card-content h3')
     pim = [pim for pim in pims]
-#     output('  [+]用户等级:'+pim[0].string)
-#     output('  [+]账户余额:'+pim[1].text.split('\n')[0])
-#     output('  [+]在线设备:'+pim[2].text.split('\n')[0])
-#     output('  [+]宽带速度:'+pim[3].string)
+    output('  [+]用户等级:'+pim[0].string)
+    output('  [+]账户余额:'+pim[1].text.split('\n')[0])
+    output('  [+]在线设备:'+pim[2].text.split('\n')[0])
+    output('  [+]宽带速度:'+pim[3].string)
     # 获取流量信息
     flows = soup.select('span[class="pull-right strong"]')
     flow = [flow.string for flow in flows]

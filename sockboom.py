@@ -1,12 +1,54 @@
 import requests
 import json
 import os
+import re
 import time
 from bs4 import BeautifulSoup
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
+from DecryptLogin import login
+from DecryptLogin.platforms.music163 import Cracker
 # 禁用安全请求警告
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
+'''网易云音乐自动签到'''
+class NeteaseSignin():
+    def __init__(self, username, password, **kwargs):
+        self.username = username
+        self.session = NeteaseSignin.login(username, password)
+        self.csrf = re.findall('__csrf=(.*?) for', str(self.session.cookies))[0]
+        self.cracker = Cracker()
+        self.headers = {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Referer': 'http://music.163.com/discover',
+                        'Accept': '*/*'
+                    }
+    '''外部调用'''
+    def run(self):
+        # 签到接口
+        signin_url = 'https://music.163.com/weapi/point/dailyTask?csrf_token=' + self.csrf
+        # 模拟签到(typeid为0代表APP上签到, 为1代表在网页上签到)
+        typeids = [0, 1]
+        for typeid in typeids:
+            client_name = 'Web端' if typeid == 1 else 'APP端'
+            # --构造请求获得响应
+            data = {
+                        'type': typeid
+                    }
+            data = self.cracker.get(data)
+            res = self.session.post(signin_url, headers=self.headers, data=data)
+            res_json = res.json()
+            # --判断签到是否成功
+            if res_json['code'] == 200:
+                print('[INFO]: 账号%s在%s签到成功...' % (self.username, client_name))
+            else:
+                print('[INFO]: 账号%s在%s签到失败, 原因: %s...' % (self.username, client_name, res_json.get('msg')))
+    '''模拟登录'''
+    @staticmethod
+    def login(username, password):
+        lg = login.Login()
+        _, session = lg.music163(username, password)
+        return session
 
 header = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:85.0) Gecko/20100101 Firefox/85.0',
@@ -15,12 +57,7 @@ header = {
 }
 email = os.environ["email"]
 passwd = os.environ["passwd"]
-webhook = ""
 server = ""
-try:
-    dingwebhook = os.environ["webhook"]  # 钉钉机器人的 webhook
-except KeyError:
-    print("没有在Repository secrets配置钉钉机器人的‘webhook’,跳过发送钉钉推送")
 try:
     serverkey = os.environ["serverkey"]  # server酱的 webhook
 except KeyError:
@@ -133,13 +170,16 @@ def server(sendkey):
 
 
 def main():
+    # 网易云签到
+    username = os.environ["NETEASE_USERNAME"]
+    password = os.environ["NETEASE_PASSWORD"]
+    sign_in = NeteaseSignin(username=username, password=password)
+    sign_in.run()
+    
+    # sockboom签到
     cookie = sign(header)
     headers = user_centre(cookie)
     checkin(headers)
-    if(len(dingwebhook)) > 1:
-        dingtalk(dingwebhook)
-    else:
-        print("没有在Repository secrets配置钉钉机器人的‘webhook’,跳过发送钉钉推送")
     if(len(serverkey)) > 1:
         server(serverkey)
     else:

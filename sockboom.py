@@ -32,7 +32,7 @@ def output(content):
 
 
 def sign(header):
-    url = 'https://sockboom.lol/auth/login?email='+email+'&passwd='+passwd+''
+    url = 'https://sockboom.site/auth/login?email='+email+'&passwd='+passwd+''
     response = requests.post(url=url, headers=header, verify=False)
     sign_message = json.loads(response.text)['msg']
     user = json.loads(response.text)['user']
@@ -50,7 +50,7 @@ def sign(header):
 
 
 def user_centre(cookie):  # 用户中心
-    url = 'https://sockboom.lol/user'
+    url = 'https://sockboom.site/user'
     headers = {
         'Cookie': cookie
     }
@@ -74,7 +74,7 @@ def user_centre(cookie):  # 用户中心
 
 
 def checkin(headers):
-    url = 'https://sockboom.lol/user/checkin'
+    url = 'https://sockboom.site/user/checkin'
     response = requests.post(url=url, headers=headers, verify=False)
     msg = json.loads(response.text)['msg']
     output('  [+]签到信息:'+msg)

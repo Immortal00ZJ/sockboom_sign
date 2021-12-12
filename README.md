@@ -1,2 +1,2 @@
 # sockboom_sign
-https://sockboom.art/
+https://sockboom.lol/
